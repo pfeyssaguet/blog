@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+. .env.dev
+
+shopt -s expand_aliases
+
+DOCKER_COMPOSE="docker-compose --env-file .env.dev"
+
+up () {
+    $DOCKER_COMPOSE up --force-recreate --build -d
+}
+
+down () {
+    $DOCKER_COMPOSE down
+}
+
+console () {
+    docker exec -it -- php-fpm php bin/console $@
+}
+
+mysql () {
+    docker exec -it -- db mysql -uroot -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE
+}
+
+help () {
+    echo "############################### USAGE ###############################"
+    echo "===> help            : Display this help"
+    echo "===> up              : Build and launch all containers"
+    echo "===> down            : Stop and destroy all containers"
+    echo "===> mysql           : Connect to mysql container"
+    echo "===> console         : Run a symfony console command"
+
+    return 1
+}
+
+if [ -z "$1" ]; then
+    help
+else
+    "$@"
+fi
